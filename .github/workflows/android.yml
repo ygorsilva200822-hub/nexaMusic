@@ -1,10 +1,10 @@
-name: Build Nexa Music Luxury APK
+name: Build Nexa Music - Catálogo Duplo
 
 on:
   workflow_dispatch:
   push:
     paths:
-      - 'NexaMusic-Luxury.zip'
+      - 'NexaMusic-DuploCatalogo.zip'
       - '.github/workflows/android.yml'
 
 jobs:
@@ -16,20 +16,20 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - uses: android-actions/setup-android@v4
+      - uses: android-actions/setup-android@v3
       - name: Unpack Android project
         run: |
           mkdir -p projeto
-          unzip -q NexaMusic-Luxury.zip -d projeto
-          echo "PROJECT_DIR=$GITHUB_WORKSPACE/projeto" >> $GITHUB_ENV
+          unzip -q NexaMusic-DuploCatalogo.zip -d projeto
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
       - name: Build debug APK
         run: |
-          cd "$PROJECT_DIR"
+          cd projeto
           gradle assembleDebug
       - uses: actions/upload-artifact@v4
         with:
-          name: NexaMusic-Luxury-APK
+          name: NexaMusic-DuploCatalogo-APK
           path: projeto/app/build/outputs/apk/debug/app-debug.apk
+          
