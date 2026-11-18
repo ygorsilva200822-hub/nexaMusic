@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'NexaMusic-AndroidStudio.zip'
+      - 'NexaMusic-AndroidStudio-fixed.zip'
       - '.github/workflows/android.yml'
 
 jobs:
@@ -22,20 +22,24 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Preparar SDK do Android
+      - name: Preparar Android SDK
         uses: android-actions/setup-android@v3
-        with:
-          packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
+
+      - name: Instalar ferramentas Android
+        run: |
+          sdkmanager --install "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
       - name: Extrair projeto
         run: |
-          unzip -q NexaMusic-AndroidStudio.zip -d projeto
-          PROJECT_FILE=$(find projeto -name settings.gradle -o -name settings.gradle.kts | head -n 1)
+          mkdir projeto
+          unzip -q NexaMusic-AndroidStudio-fixed.zip -d projeto
+          PROJECT_FILE=$(find projeto -type f \( -name settings.gradle -o -name settings.gradle.kts \) | head -n 1)
           if [ -z "$PROJECT_FILE" ]; then
             echo "Arquivo settings.gradle não encontrado!"
             exit 1
           fi
-          echo "PROJECT_DIR=$(dirname "$PROJECT_FILE")" >> "$GITHUB_ENV"
+          PROJECT_DIR=$(dirname "$PROJECT_FILE")
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
 
       - name: Preparar Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -43,11 +47,12 @@ jobs:
           gradle-version: '8.9'
 
       - name: Compilar APK
-        run: cd "$PROJECT_DIR" && gradle assembleDebug
+        run: |
+          cd "$PROJECT_DIR"
+          gradle assembleDebug
 
       - name: Disponibilizar APK
         uses: actions/upload-artifact@v4
         with:
           name: NexaMusic-APK
-          path: projeto/**/app/build/outputs/apk/debug/app-debug.apk
-          
+          path: ${{ env.PROJECT_DIR }}/app/build/outputs/apk/debug/app-debug.apk
