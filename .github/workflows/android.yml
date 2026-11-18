@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Baixar projeto
@@ -24,13 +24,13 @@ jobs:
       - name: Preparar Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Instalar ferramentas Android
-        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+      - name: Instalar pacotes Android
+        run: sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
       - name: Extrair projeto
         run: |
-          unzip NexaMusic-AndroidStudio.zip
-          cd NexaMusic
+          unzip NexaMusic-AndroidStudio.zip -d projeto
+          cd projeto
           echo "PROJECT_DIR=$PWD" >> $GITHUB_ENV
 
       - name: Compilar APK
@@ -45,4 +45,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: NexaMusic-APK
-          path: NexaMusic/app/build/outputs/apk/debug/app-debug.apk
+          path: projeto/app/build/outputs/apk/debug/app-debug.apk
