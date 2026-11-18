@@ -1,11 +1,10 @@
-
-name: Build Nexa Music Online APK
+name: Build Nexa Music Luxury APK
 
 on:
   workflow_dispatch:
   push:
     paths:
-      - 'NexaMusic-Online.zip'
+      - 'NexaMusic-Luxury.zip'
       - '.github/workflows/android.yml'
 
 jobs:
@@ -13,30 +12,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
-
       - uses: android-actions/setup-android@v4
-
       - name: Unpack Android project
         run: |
           mkdir -p projeto
-          unzip -q NexaMusic-Online.zip -d projeto
+          unzip -q NexaMusic-Luxury.zip -d projeto
           echo "PROJECT_DIR=$GITHUB_WORKSPACE/projeto" >> $GITHUB_ENV
-
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
-
       - name: Build debug APK
         run: |
           cd "$PROJECT_DIR"
           gradle assembleDebug
-
       - uses: actions/upload-artifact@v4
         with:
-          name: NexaMusic-Online-APK
+          name: NexaMusic-Luxury-APK
           path: projeto/app/build/outputs/apk/debug/app-debug.apk
