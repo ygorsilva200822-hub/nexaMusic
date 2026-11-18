@@ -1,0 +1,48 @@
+name: Gerar APK Nexa Music
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'NexaMusic-AndroidStudio.zip'
+      - '.github/workflows/android.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar projeto
+        uses: actions/checkout@v4
+
+      - name: Preparar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Preparar Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Instalar ferramentas Android
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Extrair projeto
+        run: |
+          unzip NexaMusic-AndroidStudio.zip
+          cd NexaMusic
+          echo "PROJECT_DIR=$PWD" >> $GITHUB_ENV
+
+      - name: Compilar APK
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Gerar aplicativo
+        run: cd "$PROJECT_DIR" && gradle assembleDebug
+
+      - name: Disponibilizar APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: NexaMusic-APK
+          path: NexaMusic/app/build/outputs/apk/debug/app-debug.apk
