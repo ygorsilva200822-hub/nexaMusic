@@ -30,7 +30,12 @@ jobs:
       - name: Extrair projeto
         run: |
           unzip -q NexaMusic-AndroidStudio.zip -d projeto
-          ls -la projeto
+          PROJECT_FILE=$(find projeto -name settings.gradle -o -name settings.gradle.kts | head -n 1)
+          if [ -z "$PROJECT_FILE" ]; then
+            echo "Arquivo settings.gradle não encontrado!"
+            exit 1
+          fi
+          echo "PROJECT_DIR=$(dirname "$PROJECT_FILE")" >> "$GITHUB_ENV"
 
       - name: Preparar Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -38,12 +43,11 @@ jobs:
           gradle-version: '8.9'
 
       - name: Compilar APK
-        run: gradle assembleDebug
-        working-directory: projeto
+        run: cd "$PROJECT_DIR" && gradle assembleDebug
 
       - name: Disponibilizar APK
         uses: actions/upload-artifact@v4
         with:
           name: NexaMusic-APK
-          path: projeto/app/build/outputs/apk/debug/app-debug.apk
+          path: projeto/**/app/build/outputs/apk/debug/app-debug.apk
           
