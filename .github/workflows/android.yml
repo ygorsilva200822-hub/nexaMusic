@@ -1,3 +1,4 @@
+
 name: Gerar APK Nexa Music
 
 on:
@@ -21,28 +22,28 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Preparar Android SDK
+      - name: Preparar SDK do Android
         uses: android-actions/setup-android@v3
-
-      - name: Instalar pacotes Android
-        run: sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+        with:
+          packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
 
       - name: Extrair projeto
         run: |
-          unzip NexaMusic-AndroidStudio.zip -d projeto
-          cd projeto
-          echo "PROJECT_DIR=$PWD" >> $GITHUB_ENV
+          unzip -q NexaMusic-AndroidStudio.zip -d projeto
+          ls -la projeto
 
-      - name: Compilar APK
+      - name: Preparar Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
 
-      - name: Gerar aplicativo
-        run: cd "$PROJECT_DIR" && gradle assembleDebug
+      - name: Compilar APK
+        run: gradle assembleDebug
+        working-directory: projeto
 
       - name: Disponibilizar APK
         uses: actions/upload-artifact@v4
         with:
           name: NexaMusic-APK
           path: projeto/app/build/outputs/apk/debug/app-debug.apk
+          
